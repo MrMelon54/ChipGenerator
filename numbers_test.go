@@ -2,8 +2,8 @@ package ChipGenerator
 
 import (
 	"github.com/stretchr/testify/assert"
-	"math/big"
 	"strconv"
+	"strings"
 	"testing"
 )
 
@@ -40,12 +40,6 @@ var testsMap = map[int]string{
 }
 
 func g(t *testing.T, number, name string) {
-	var a big.Int
-	a.SetString(number, 10)
-	h(t, &a, name)
-}
-
-func h(t *testing.T, number *big.Int, name string) {
 	assert.Equal(t, name, GenerateIllion(number))
 }
 
@@ -57,9 +51,21 @@ func TestIllionGenerator(t *testing.T) {
 }
 
 func BenchmarkIllionGenerator(b *testing.B) {
-	var a big.Int
-	a.SetString("69696969696969696969", 10)
 	for i := 0; i < b.N; i++ {
-		_ = GenerateIllion(&a)
+		_ = GenerateIllion("69696969696969696969")
+	}
+}
+
+var bigStringInput = strings.Repeat("69", 5000000)
+
+func BenchmarkIllionGeneratorBig(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		_ = GenerateIllion(bigStringInput)
+	}
+}
+
+func BenchmarkIllionGeneratorBigPerf(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		_ = GenerateIllion(bigStringInput)
 	}
 }

@@ -4,11 +4,10 @@ package ChipGenerator
 This code (and it's accompanying Lua script) calculates, generates, and imports custom poker chips of arbitrary denominations and colors into Tabletop Simulator.
 The code is written in Go, except for the import function which is written in Lua, because the API for TTS uses Lua exclusively.
 The code is written in a way that allows for easy modification of the chip denominations, colors, and other parameters via a config file.
-To support arbirary chip denominations, the code uses math/big to handle arbitrary precision numbers, and then converts them to strings for the generation of the chip images.
+To support arbitrary chip denominations, the code uses math/big to handle arbitrary precision numbers, and then converts them to strings for the generation of the chip images.
 */
 
 import (
-	"math/big"
 	"strconv"
 	"strings"
 )
@@ -70,9 +69,7 @@ func init() {
 // GenerateIllion takes a number and returns a string with the number in illion form, where the number is the illion in the sequence of illions.
 // takes in a big.Int and returns a string.
 // examples: 1 -> "million", 10 -> "decillion", 24 -> "quattorvigintillion" etc.
-func GenerateIllion(illn *big.Int) string {
-	str := illn.String()
-
+func GenerateIllion(str string) string {
 	// ignore an empty string
 	if len(str) == 0 {
 		return ""

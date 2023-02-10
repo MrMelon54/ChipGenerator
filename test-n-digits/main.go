@@ -14,7 +14,7 @@ var bi18 = big.NewInt(18)
 
 func main() {
 	n := big.NewInt(1)
-	fmt.Println("time, digits, gen random, gen big int, gen word, total time")
+	fmt.Println("time, digits, gen random, gen word, total time")
 	for {
 		fmt.Printf("%s, %s, ", time.Now().Format(time.DateTime), n)
 		t := time.Now()
@@ -24,15 +24,9 @@ func main() {
 		z := genNumber(n)
 		fmt.Printf("%s, ", time.Since(t2))
 
-		// gen big int
-		t2 = time.Now()
-		var a big.Int
-		a.SetString(z, 10)
-		fmt.Printf("%s, ", time.Since(t2))
-
 		// gen word
 		t2 = time.Now()
-		_ = ChipGenerator.GenerateIllion(&a)
+		_ = ChipGenerator.GenerateIllion(z)
 		fmt.Printf("%s, ", time.Since(t2))
 
 		// total time
