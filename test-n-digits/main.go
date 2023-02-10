@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"github.com/Kikithecat12345/ChipGenerator"
 	"math/big"
@@ -13,8 +14,12 @@ var bi10 = big.NewInt(10)
 var bi18 = big.NewInt(18)
 
 func main() {
+	var speed bool
+	flag.BoolVar(&speed, "speed", false, "Multithreading speed enhancement")
+	flag.Parse()
+
 	n := big.NewInt(1)
-	fmt.Println("time, digits, gen random, gen big int, gen word, total time")
+	fmt.Println("time, digits, gen random, gen word, total time")
 	for {
 		fmt.Printf("%s, %s, ", time.Now().Format(time.DateTime), n)
 		t := time.Now()
@@ -24,15 +29,9 @@ func main() {
 		z := genNumber(n)
 		fmt.Printf("%s, ", time.Since(t2))
 
-		// gen big int
-		t2 = time.Now()
-		var a big.Int
-		a.SetString(z, 10)
-		fmt.Printf("%s, ", time.Since(t2))
-
 		// gen word
 		t2 = time.Now()
-		_ = ChipGenerator.GenerateIllion(&a, true)
+		_ = ChipGenerator.GenerateIllion(z, speed)
 		fmt.Printf("%s, ", time.Since(t2))
 
 		// total time
