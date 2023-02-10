@@ -4,6 +4,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"math/big"
 	"strconv"
+	"strings"
 	"testing"
 )
 
@@ -46,7 +47,7 @@ func g(t *testing.T, number, name string) {
 }
 
 func h(t *testing.T, number *big.Int, name string) {
-	assert.Equal(t, name, GenerateIllion(number))
+	assert.Equal(t, name, GenerateIllion(number, false))
 }
 
 func TestIllionGenerator(t *testing.T) {
@@ -60,6 +61,22 @@ func BenchmarkIllionGenerator(b *testing.B) {
 	var a big.Int
 	a.SetString("69696969696969696969", 10)
 	for i := 0; i < b.N; i++ {
-		_ = GenerateIllion(&a)
+		_ = GenerateIllion(&a, false)
+	}
+}
+
+func BenchmarkIllionGeneratorBig(b *testing.B) {
+	var a big.Int
+	a.SetString(strings.Repeat("69", 500000), 10)
+	for i := 0; i < b.N; i++ {
+		_ = GenerateIllion(&a, false)
+	}
+}
+
+func BenchmarkIllionGeneratorBigPerf(b *testing.B) {
+	var a big.Int
+	a.SetString(strings.Repeat("69", 500000), 10)
+	for i := 0; i < b.N; i++ {
+		_ = GenerateIllion(&a, true)
 	}
 }

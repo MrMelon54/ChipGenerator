@@ -11,6 +11,7 @@ import (
 	"math/big"
 	"strconv"
 	"strings"
+	"sync"
 )
 
 // == variables ==
@@ -70,7 +71,7 @@ func init() {
 // GenerateIllion takes a number and returns a string with the number in illion form, where the number is the illion in the sequence of illions.
 // takes in a big.Int and returns a string.
 // examples: 1 -> "million", 10 -> "decillion", 24 -> "quattorvigintillion" etc.
-func GenerateIllion(illn *big.Int) string {
+func GenerateIllion(illn *big.Int, perf bool) string {
 	str := illn.String()
 
 	// ignore an empty string
@@ -81,12 +82,63 @@ func GenerateIllion(illn *big.Int) string {
 	// pad the start of the string with 0s so that it's divisible by 3.
 	str = padToMultipleOf3(str)
 
+	l := len(str)
 	var illionGen strings.Builder
 
-	// iterate in reverse order
-	// i = hundreds digit for a set of 3
-	for i := 0; i < len(str); i += 3 {
-		_, _ = illionGen.WriteString(cacheTripleString[str[i:i+3]])
+	if perf {
+		var splitLen int
+		switch {
+		case l > 99999999:
+			splitLen = 999999
+		case l > 999999:
+			splitLen = 9999
+		case l > 9999:
+			splitLen = 99
+		default:
+			splitLen = l
+		}
+
+		maxN := l / splitLen
+		if l%splitLen > 0 {
+			maxN++
+		}
+
+		c := make(chan illionPair, maxN)
+		wg := new(sync.WaitGroup)
+		wg.Add(maxN)
+		n := 0
+		for i := 0; i < l; i += splitLen {
+			if n+1 == maxN {
+				go pipeIllionRange(wg, c, n, l-i, str[i:l])
+			} else {
+				go pipeIllionRange(wg, c, n, splitLen, str[i:i+splitLen])
+			}
+			n++
+		}
+
+		c2 := make(chan []string, 1)
+		go (func() {
+			// collect channel outputs into array
+			a := make([]string, maxN)
+			for v := range c {
+				a[v.n] = v.word
+			}
+			c2 <- a
+		})()
+		wg.Wait()
+		close(c)
+
+		// write to final string, waits for result on c2
+		for _, i := range <-c2 {
+			illionGen.WriteString(i)
+		}
+		close(c2)
+	} else {
+		// iterate in reverse order
+		// i = hundreds digit for a set of 3
+		for i := 0; i < len(str); i += 3 {
+			illionGen.WriteString(cacheTripleString[str[i:i+3]])
+		}
 	}
 
 	illionWord := illionGen.String()
@@ -104,6 +156,20 @@ func GenerateIllion(illn *big.Int) string {
 		illionWord += "illion"
 	}
 	return illionWord
+}
+
+type illionPair struct {
+	n    int
+	word string
+}
+
+func pipeIllionRange(wg *sync.WaitGroup, c chan illionPair, n, l int, str string) {
+	defer wg.Done()
+	var illionGen strings.Builder
+	for i := 0; i < l; i += 3 {
+		illionGen.WriteString(cacheTripleString[str[i:i+3]])
+	}
+	c <- illionPair{n, illionGen.String()}
 }
 
 func generateTriplePrefix(triple string) string {

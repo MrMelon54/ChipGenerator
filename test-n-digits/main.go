@@ -32,7 +32,7 @@ func main() {
 
 		// gen word
 		t2 = time.Now()
-		_ = ChipGenerator.GenerateIllion(&a)
+		_ = ChipGenerator.GenerateIllion(&a, true)
 		fmt.Printf("%s, ", time.Since(t2))
 
 		// total time
