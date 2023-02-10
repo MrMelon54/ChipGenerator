@@ -5,12 +5,12 @@ import (
 	"github.com/Kikithecat12345/ChipGenerator"
 	"math/big"
 	"math/rand"
-	"strconv"
+	"strings"
 	"time"
 )
 
-var bi1 = big.NewInt(1)
 var bi10 = big.NewInt(10)
+var bi18 = big.NewInt(18)
 
 func main() {
 	n := big.NewInt(1)
@@ -43,9 +43,9 @@ func main() {
 
 func genNumber(n *big.Int) string {
 	end := new(big.Int).Set(n)
-	b := ""
-	for i := big.NewInt(0); i.Cmp(end) < 0; i.Add(i, bi1) {
-		b += strconv.Itoa(rand.Intn(10))
+	var b strings.Builder
+	for i := big.NewInt(0); i.Cmp(end) < 0; i.Add(i, bi18) {
+		b.WriteString(fmt.Sprintf("%018d", rand.Int63())[:18])
 	}
-	return b
+	return b.String()
 }
