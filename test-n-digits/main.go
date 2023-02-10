@@ -14,20 +14,31 @@ var bi10 = big.NewInt(10)
 
 func main() {
 	n := big.NewInt(1)
+	fmt.Println("time, digits, gen random, gen big int, gen word, total time")
 	for {
-		fmt.Printf("Running test for %s digits\n", n)
-		run(genNumber(n))
+		fmt.Printf("%s, %s, ", time.Now().Format(time.UnixDate), n)
+		t := time.Now()
+
+		// gen random
+		t2 := time.Now()
+		z := genNumber(n)
+		fmt.Printf("%s, ", time.Since(t2))
+
+		// gen big int
+		t2 = time.Now()
+		var a big.Int
+		a.SetString(z, 10)
+		fmt.Printf("%s, ", time.Since(t2))
+
+		// gen word
+		t2 = time.Now()
+		_ = ChipGenerator.GenerateIllion(&a)
+		fmt.Printf("%s, ", time.Since(t2))
+
+		// total time
+		fmt.Printf("%s\n", time.Since(t))
 		n.Mul(n, bi10)
 	}
-}
-
-func run(n string) {
-	var a big.Int
-	a.SetString(n, 10)
-	t := time.Now()
-	_ = ChipGenerator.GenerateIllion(&a)
-	n2 := time.Since(t)
-	fmt.Println(n2)
 }
 
 func genNumber(n *big.Int) string {
