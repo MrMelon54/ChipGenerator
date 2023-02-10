@@ -9,6 +9,7 @@ To support arbirary chip denominations, the code uses math/big to handle arbitra
 
 import (
 	"math/big"
+	"strconv"
 	"strings"
 )
 
@@ -56,6 +57,16 @@ var littlePrefixes = map[int]string{
 	10: "decilli", // 10
 }
 
+var cacheTripleString = make(map[string]string, 1000)
+
+func init() {
+	// Cache triples
+	for i := 0; i < 1000; i++ {
+		padded := padToMultipleOf3(strconv.Itoa(i))
+		cacheTripleString[padded] = generateTriplePrefix(padded)
+	}
+}
+
 // GenerateIllion takes a number and returns a string with the number in illion form, where the number is the illion in the sequence of illions.
 // takes in a big.Int and returns a string.
 // examples: 1 -> "million", 10 -> "decillion", 24 -> "quattorvigintillion" etc.
@@ -69,44 +80,19 @@ func GenerateIllion(illn *big.Int) string {
 
 	// pad the start of the string with 0s so that it's divisible by 3.
 	str = padToMultipleOf3(str)
-	strLen := len(str)
-	var lastPrefix int
-	var illionWord string
+
+	var illionGen strings.Builder
 
 	// iterate in reverse order
 	// i = hundreds digit for a set of 3
-	for i := strLen - 3; i >= 0; i -= 3 {
-		// are all the digits in this group 0
-		if str[i:i+3] == "000" {
-			illionWord = "nilli" + illionWord
-			continue
-		}
-
-		// if tens and hundreds digits are 0, we use the littlePrefixes map instead of the prefixes map.
-		if str[i:i+2] == "00" {
-			lastPrefix = int(str[i+2] - '0')
-			illionWord = littlePrefixes[lastPrefix] + illionWord
-			continue
-		}
-
-		// hundreds digit
-		if str[i] != '0' {
-			lastPrefix = int(str[i]-'0') * 100
-			illionWord = prefixes[lastPrefix] + illionWord
-		}
-
-		// tens digit
-		if str[i+1] != '0' {
-			lastPrefix = int(str[i+1]-'0') * 10
-			illionWord = prefixes[lastPrefix] + illionWord
-		}
-
-		// we use the prefixes map, but account for english grammar rules.
-		illionWord = onesDigitPrefix(int(str[i+2]-'0'), lastPrefix) + illionWord
+	for i := 0; i < len(str); i += 3 {
+		_, _ = illionGen.WriteString(cacheTripleString[str[i:i+3]])
 	}
 
+	illionWord := illionGen.String()
+
 	// add the "illion" suffix.
-	// however, if it ends in "illi" we only add "on", for example "milli" -> "million
+	// however, if it ends in "illi" we only add "on", for example "milli" -> "million"
 	// and if it only ends in a vowel we remove it, then add "illion". for example "quadraginta" -> "quadragintillion"
 	if strings.HasSuffix(illionWord, "illi") {
 		illionWord += "on"
@@ -118,6 +104,39 @@ func GenerateIllion(illn *big.Int) string {
 		illionWord += "illion"
 	}
 	return illionWord
+}
+
+func generateTriplePrefix(triple string) string {
+	// are all the digits in this group 0
+	if triple == "000" {
+		return "nilli"
+	}
+
+	var lastPrefix int
+
+	// if tens and hundreds digits are 0, we use the littlePrefixes map instead of the prefixes map.
+	if triple[:2] == "00" {
+		lastPrefix = int(triple[2] - '0')
+		return littlePrefixes[lastPrefix]
+	}
+
+	var prefix string
+
+	// hundreds digit
+	if triple[0] != '0' {
+		lastPrefix = int(triple[0]-'0') * 100
+		prefix = prefixes[lastPrefix] + prefix
+	}
+
+	// tens digit
+	if triple[1] != '0' {
+		lastPrefix = int(triple[1]-'0') * 10
+		prefix = prefixes[lastPrefix] + prefix
+	}
+
+	// we use the prefixes map, but account for english grammar rules.
+	prefix = onesDigitPrefix(int(triple[2]-'0'), lastPrefix) + prefix
+	return prefix
 }
 
 func onesDigitPrefix(digit int, lastPrefix int) string {
