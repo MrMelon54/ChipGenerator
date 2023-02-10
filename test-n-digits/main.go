@@ -16,7 +16,7 @@ func main() {
 	n := big.NewInt(1)
 	fmt.Println("time, digits, gen random, gen big int, gen word, total time")
 	for {
-		fmt.Printf("%s, %s, ", time.Now().Format(time.UnixDate), n)
+		fmt.Printf("%s, %s, ", time.Now().Format(time.DateTime), n)
 		t := time.Now()
 
 		// gen random
