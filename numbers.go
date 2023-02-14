@@ -80,7 +80,6 @@ func GenerateIllion(str string) string {
 
 	var illionGen strings.Builder
 
-	// iterate in reverse order
 	// i = hundreds digit for a set of 3
 	for i := 0; i < len(str); i += 3 {
 		_, _ = illionGen.WriteString(cacheTripleString[str[i:i+3]])
